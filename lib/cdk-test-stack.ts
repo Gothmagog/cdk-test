@@ -13,7 +13,7 @@ class OtherStack extends cdk.Stack {
 	    encryption: s3.BucketEncryption.S3_MANAGED,
 	    enforceSSL: true,
 	    versioned: true,
-	    removalPolicy: RemovalPolicy.DESTROY,
+	    removalPolicy: cdk.RemovalPolicy.DESTROY,
 	});
     }
 }
