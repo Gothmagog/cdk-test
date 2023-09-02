@@ -97,7 +97,7 @@ export class CdkTestStack extends cdk.Stack {
 		]
 	    })
 	});
-	const otherStage = new OtherStage(this, "other-stage", {
+	const otherStage = new OtherStage(this, "Other-Stage", {
 	    env: {
 		account: this.account,
 		region: this.region
