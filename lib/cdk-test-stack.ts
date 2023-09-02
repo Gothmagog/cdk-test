@@ -3,7 +3,6 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { CfnConnection } from 'aws-cdk-lib/aws-codestarconnections';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { CrossAcctStack } from './cross-account-stack';
 
 class OtherStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
