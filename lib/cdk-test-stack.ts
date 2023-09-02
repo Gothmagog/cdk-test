@@ -8,7 +8,7 @@ class CrossAcctStack extends cdk.Stack {
 	super(scope, id, props);
 
 	const provider = cdk.CustomResourceProvider.getOrCreateProvider(this, 'Custom::DataSourceCreator', {
-	    codeDirectory: `${__dirname}/asset-dir`,
+	    codeDirectory: "asset-dir",
 	    runtime: cdk.CustomResourceProviderRuntime.NODEJS_18_X,
 	    environment: {
 		AWS_ACCOUNT_ID: this.account
