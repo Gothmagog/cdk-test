@@ -1,8 +1,56 @@
 import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { CfnConnection } from 'aws-cdk-lib/aws-codestarconnections';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import { CrossAcctStack } from './cross-account-stack';
+
+class OtherStack extends cdk.Stack {
+    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+	super(scope, id, props);
+	const bucket = new s3.Bucket(this, "bucket", {
+	    blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+	    encryption: s3.BucketEncryption.S3_MANAGED,
+	    enforceSSL: true,
+	    versioned: true,
+	    removalPolicy: RemovalPolicy.DESTROY,
+	});
+    }
+}
+
+class OtherStage extends cdk.Stage {
+    constructor(scope: Construct, id: string, props: cdk.StageProps) {
+	super(scope, id, props);
+
+	var targetEnv = (props ? props.env : {
+	    account: this.account,
+	    region: this.region
+	});
+	const stack = new OtherStack(this, "other-stack", {
+	    env: targetEnv
+	});
+    }
+}
+
+class CrossAcctStack extends cdk.Stack {
+    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+	super(scope, id, props);
+
+	const codeDir = `${__dirname}/asset-dir`;
+	const provider = cdk.CustomResourceProvider.getOrCreateProvider(this, 'Custom::DataSourceCreator', {
+	    codeDirectory: codeDir,
+	    runtime: cdk.CustomResourceProviderRuntime.NODEJS_18_X,
+	    environment: {
+		AWS_ACCOUNT_ID: this.account
+	    },
+	    timeout: cdk.Duration.minutes(3)
+	});
+	new cdk.CustomResource(this, 'custom-resource', {
+	    resourceType: 'Custom::DataSourceCreator',
+	    serviceToken: provider.serviceToken
+	});	
+    }
+}
 
 class CrossAcctStage extends cdk.Stage {
     constructor(scope: Construct, id: string, props: cdk.StageProps) {
@@ -50,6 +98,13 @@ export class CdkTestStack extends cdk.Stack {
 		]
 	    })
 	});
+	const otherStage = new OtherStage(this, "other-stage", {
+	    env: {
+		account: this.account,
+		region: this.region
+	    }
+	});
+	pipeline.addStage(otherStage);
 	const wave = pipeline.addWave("Cross-Account-Deployments");
 	for (var a = 0; a < acct_ids.length; a++) {
 	    for (var r = 0; r < regions.length; r++) {
