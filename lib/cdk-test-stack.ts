@@ -2,25 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CfnConnection } from 'aws-cdk-lib/aws-codestarconnections';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-
-class CrossAcctStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-	super(scope, id, props);
-
-	const provider = cdk.CustomResourceProvider.getOrCreateProvider(this, 'Custom::DataSourceCreator', {
-	    codeDirectory: "asset-dir",
-	    runtime: cdk.CustomResourceProviderRuntime.NODEJS_18_X,
-	    environment: {
-		AWS_ACCOUNT_ID: this.account
-	    },
-	    timeout: cdk.Duration.minutes(3)
-	});
-	new cdk.CustomResource(this, 'custom-resource', {
-	    resourceType: 'Custom::DataSourceCreator',
-	    serviceToken: provider.serviceToken
-	});	
-    }
-}
+import { CrossAcctStack } from './cross-account-stack';
 
 class CrossAcctStage extends cdk.Stage {
     constructor(scope: Construct, id: string, props: cdk.StageProps) {
