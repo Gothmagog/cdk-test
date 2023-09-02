@@ -55,6 +55,7 @@ export class CdkTestStack extends cdk.Stack {
 	const pipeline = new CodePipeline(this, `${id}-pipeline`, {
 	    pipelineName: 'CdkTestPipeline',
             crossAccountKeys: true,
+	    dockerEnabledForSynth: true,
             selfMutation: true,
 	    useChangeSets: false,
 	    synth: new ShellStep('Synth', {
